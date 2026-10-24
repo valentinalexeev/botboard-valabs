@@ -1,0 +1,23 @@
+# botboard, reachable only over the headscale-managed tailnet (http://botboard/). No [[services]] block,
+# deliberately: nothing is exposed through Fly's own proxy. The app joins the tailnet itself (tsnet).
+app = "botboard-valabs"
+primary_region = "ams"
+kill_signal = "SIGINT"
+kill_timeout = "5s"
+
+[env]
+  TS_CONTROL_URL = "https://fly-headscale.fly.dev"
+  # Secret (flyctl secrets set -a botboard-valabs TS_AUTHKEY=...): a reusable headscale pre-auth key.
+
+# Keeps the node identity across deploys (otherwise every deploy registers a new botboard-N node).
+# Created once with: flyctl volumes create botboard_state -a botboard-valabs -r ams -n 1 -s 1
+[mounts]
+  source = "botboard_state"
+  destination = "/data"
+
+# Board state is memory only; the volume holds just the tailnet identity. With no [[services]] Fly never
+# auto-stops the machine, which is what we want (no inbound Fly traffic could wake it).
+[[vm]]
+  size = "shared-cpu-1x"
+  memory = "256mb"
+

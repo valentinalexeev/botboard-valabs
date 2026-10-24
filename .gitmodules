@@ -1,0 +1,3 @@
+[submodule "vendor/botboard"]
+	path = vendor/botboard
+	url = https://github.com/valentinalexeev/botboard
